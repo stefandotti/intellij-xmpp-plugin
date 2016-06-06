@@ -1,0 +1,61 @@
+<idea-plugin version="2">
+    <id>com.shark.intellij.plugins.xmpp</id>
+    <name>XMPP</name>
+    <version>1.0.4.1</version>
+    <vendor email="office@shark-soft.com" url="http://www.shark-soft.com">Shark GmbH</vendor>
+    <category>TEAMWORK</category>
+
+    <description><![CDATA[
+      Ein einfacher XMPP Client
+    ]]></description>
+
+    <change-notes><![CDATA[
+        1.0.4.1: added emoji4j and last 4 history messages in chat window
+        1.0.4.0: added ChatState Extension handling
+        1.0.3.3: NPE wenn kein Name bei einem Contact gesetzt ist.
+        1.0.3.0: make https links clickable in chat window
+        1.0.2.0: Show Balloon when contact changes presence.
+    ]]>
+    </change-notes>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+    <idea-version since-build="141.0"/>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+         on how to target different products -->
+    <!-- uncomment to enable plugin in all products
+    <depends>com.intellij.modules.lang</depends>
+    -->
+    <application-components>
+        <component>
+            <interface-class>com.shark.intellij.plugins.xmpp.XMPPApplicationInterface</interface-class>
+            <implementation-class>com.shark.intellij.plugins.xmpp.XMPPApplicationImpl</implementation-class>
+        </component>
+    </application-components>
+
+    <project-components>
+        <component>
+            <interface-class>com.shark.intellij.plugins.xmpp.XMPPProjectInterface</interface-class>
+            <implementation-class>com.shark.intellij.plugins.xmpp.XMPPProjectImpl</implementation-class>
+        </component>
+    </project-components>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Add your extensions here -->
+        <toolWindow icon="/icons/jabber.png" id="XMPP" anchor="right" canCloseContents="true"
+                    factoryClass="com.shark.intellij.plugins.xmpp.XMPPToolWindowFactory"/>
+        <applicationService serviceImplementation="com.shark.intellij.plugins.xmpp.SettingsBean"/>
+        <applicationConfigurable instance="com.shark.intellij.plugins.xmpp.XMPPSettingsForm"/>
+    </extensions>
+
+    <actions>
+        <!-- Add your actions here -->
+        <action id="com.shark.intellij.plugins.xmpp.CopyToXMPPAction"
+                class="com.shark.intellij.plugins.xmpp.CopyToXMPPAction" text="Copy To XMPP Contact"
+                description="Copy the selected to a XMPP Contact">
+            <add-to-group group-id="EditorPopupMenu" anchor="after" relative-to-action="CopyReference"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="shift ctrl C"/>
+        </action>
+    </actions>
+
+</idea-plugin>

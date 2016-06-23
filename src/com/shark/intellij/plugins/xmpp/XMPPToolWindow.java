@@ -150,6 +150,8 @@ public class XMPPToolWindow implements RosterListener, ChatManagerListener, Conn
 		contacts.setCloseable(false);
 		contacts.setToolwindowTitle("Contacts");
 		contacts.setIcon(XMPPToolWindowFactory.JABBER);
+		contacts.setPinned(true);
+		contacts.setPinnable(true);
 		toolWindow.getContentManager().addContent(contacts);
 		toolWindow.getContentManager().setSelectedContent(contacts);
 

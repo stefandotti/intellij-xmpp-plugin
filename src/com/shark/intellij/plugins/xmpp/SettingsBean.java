@@ -18,6 +18,7 @@ public class SettingsBean implements PersistentStateComponent<SettingsBean> {
     private String password;
     private String server;
     private short port;
+	private String serviceName;
     private String encryption;
     private boolean visible;
     private Map<String, List<XMPPMessage>> messageHistory = new HashMap<>();
@@ -81,7 +82,15 @@ public class SettingsBean implements PersistentStateComponent<SettingsBean> {
         return visible;
     }
 
-    public synchronized void addMessage(long timestamp, String from, String user, String msg) {
+	public String getServiceName() {
+		return serviceName;
+	}
+
+	public void setServiceName(String serviceName) {
+		this.serviceName = serviceName;
+	}
+
+	public synchronized void addMessage(long timestamp, String from, String user, String msg) {
         if (from.lastIndexOf("/") != -1) {
             from = from.substring(0, from.lastIndexOf("/"));
         }

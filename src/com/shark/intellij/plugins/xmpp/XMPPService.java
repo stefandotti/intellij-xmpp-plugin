@@ -83,14 +83,14 @@ public class XMPPService implements ChatManagerListener, RosterListener, Connect
 	}
 
 	private void startup() throws IOException, XMPPException, SmackException {
-		this.connection = startup(settings.getUsername(), settings.getPassword(), settings.getServer(), settings.getPort(), settings.getEncryption());
+		this.connection = startup(settings.getUsername(), settings.getPassword(), settings.getServer(), settings.getPort(), settings.getServiceName(), settings.getEncryption());
 		addConnectionListener(this);
 		getChatManager().addChatListener(this);
 		getRoster().addRosterListener(this);
 		FileTransferManager.getInstanceFor(this.connection).addFileTransferListener(this);
 	}
 
-	private static AbstractXMPPConnection startup(String username, String password, String server, Short port, String encryption) throws IOException, XMPPException, SmackException {
+	private static AbstractXMPPConnection startup(String username, String password, String server, Short port, String serviceName, String encryption) throws IOException, XMPPException, SmackException {
 		TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
 			public java.security.cert.X509Certificate[] getAcceptedIssuers() {
 				return null;
@@ -120,14 +120,14 @@ public class XMPPService implements ChatManagerListener, RosterListener, Connect
 
 		XMPPTCPConnectionConfiguration config = null;
 		if (encryption == null || encryption.equals("NO")) {
-			config = XMPPTCPConnectionConfiguration.builder().setUsernameAndPassword(username, password).setServiceName(server).setHost(server).setPort(port).setResource("IDEA").setSecurityMode(ConnectionConfiguration.SecurityMode.disabled).build();
+			config = XMPPTCPConnectionConfiguration.builder().setUsernameAndPassword(username, password).setServiceName(serviceName).setHost(server).setPort(port).setResource("IDEA").setSecurityMode(ConnectionConfiguration.SecurityMode.disabled).build();
 		} else {
 			List<String> cy = new ArrayList<>();
 			if (encryption.equals("TLS")) {
 				cy.add("TLS");
 			} else {
 			}
-			config = XMPPTCPConnectionConfiguration.builder().setUsernameAndPassword(username, password).setServiceName(server).setHost(server).setPort(port).setResource("IDEA").setSecurityMode(ConnectionConfiguration.SecurityMode.required).setCustomSSLContext(sc).setHostnameVerifier(allHostsValid).build();
+			config = XMPPTCPConnectionConfiguration.builder().setUsernameAndPassword(username, password).setServiceName(serviceName).setHost(server).setPort(port).setResource("IDEA").setSecurityMode(ConnectionConfiguration.SecurityMode.required).setCustomSSLContext(sc).setHostnameVerifier(allHostsValid).build();
 		}
 
 		AbstractXMPPConnection con = new XMPPTCPConnection(config);
@@ -181,8 +181,8 @@ public class XMPPService implements ChatManagerListener, RosterListener, Connect
 		return getChatManager().createChat(user);
 	}
 
-	public static void test(String username, String password, String server, Short port, String encryption) throws XMPPException, IOException, SmackException {
-		AbstractXMPPConnection connection = startup(username, password, server, port, encryption);
+	public static void test(String username, String password, String server, Short port, String serviceName, String encryption) throws XMPPException, IOException, SmackException {
+		AbstractXMPPConnection connection = startup(username, password, server, port, serviceName, encryption);
 		connection.login();
 	}
 

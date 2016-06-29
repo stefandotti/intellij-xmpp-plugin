@@ -1,7 +1,7 @@
 <idea-plugin version="2">
     <id>com.shark.intellij.plugins.xmpp</id>
     <name>XMPP</name>
-    <version>1.0.4.2</version>
+    <version>1.0.5.0</version>
     <vendor email="office@shark-soft.com" url="http://www.shark-soft.com">Shark GmbH</vendor>
     <category>TEAMWORK</category>
 
@@ -10,6 +10,7 @@
     ]]></description>
 
     <change-notes><![CDATA[
+        1.0.5.0: separate servicename and host into two fields
         1.0.4.2: make it pinnable and pinned by default
         1.0.4.1: added emoji4j and last 4 history messages in chat window
         1.0.4.0: added ChatState Extension handling

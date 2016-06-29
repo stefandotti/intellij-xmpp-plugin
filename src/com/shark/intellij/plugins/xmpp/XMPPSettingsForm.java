@@ -17,7 +17,7 @@ public class XMPPSettingsForm implements Configurable {
         testConnectionButton.addActionListener(e -> {
             try {
                 textArea1.setVisible(true);
-                XMPPService.test(username.getText(), password.getText(), server.getText(), Short.valueOf(port.getText()), TLSRadioButton.isSelected() ? "TLS" : "NO");
+                XMPPService.test(username.getText(), password.getText(), server.getText(), Short.valueOf(port.getText()), serviceName.getText(), TLSRadioButton.isSelected() ? "TLS" : "NO");
                 textArea1.setText("success");
             } catch (XMPPException e1) {
                 e1.printStackTrace();
@@ -52,6 +52,7 @@ public class XMPPSettingsForm implements Configurable {
         password.setText(bean.getPassword());
         server.setText(bean.getServer());
         port.setText(String.valueOf(bean.getPort()));
+        serviceName.setText(bean.getServiceName());
         TLSRadioButton.setSelected(bean.getEncryption().equals("TLS"));
         noEncryptionRadioButton.setSelected(bean.getEncryption().equals("NO"));
         return panel;
@@ -68,6 +69,8 @@ public class XMPPSettingsForm implements Configurable {
             return true;
         } else if (!port.getText().equals(bean.getPort())) {
             return true;
+        } else if (!serviceName.getText().equals(bean.getServiceName())) {
+            return true;
         } else if (!TLSRadioButton.isSelected() != bean.getEncryption().equals("TLS")) {
             return true;
         } else if (!noEncryptionRadioButton.isSelected() != bean.getEncryption().equals("NO")) {
@@ -83,6 +86,7 @@ public class XMPPSettingsForm implements Configurable {
         bean.setPassword(password.getText());
         bean.setServer(server.getText());
         bean.setPort(Short.parseShort(port.getText()));
+		bean.setServiceName(serviceName.getText());
         bean.setEncryption(TLSRadioButton.isSelected()?"TLS":"NO");
     }
 
@@ -106,7 +110,9 @@ public class XMPPSettingsForm implements Configurable {
     private JButton testConnectionButton;
     private JTextArea textArea1;
 
-    public void setData(SettingsBean data) {
+	private JTextField serviceName;
+
+	public void setData(SettingsBean data) {
         System.out.println(data);
     }
 

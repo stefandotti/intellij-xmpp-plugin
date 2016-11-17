@@ -1,8 +1,8 @@
 <idea-plugin version="2">
-    <id>com.shark.intellij.plugins.xmpp</id>
+    <id>at.dotti.intellij.plugins.xmpp</id>
     <name>XMPP</name>
-    <version>1.0.5.0</version>
-    <vendor email="office@shark-soft.com" url="http://www.shark-soft.com">Shark GmbH</vendor>
+    <version>1.0.5.2</version>
+    <vendor email="stefan@dotti.at" url="http://www.dotti.at">Stefan Dotti</vendor>
     <category>TEAMWORK</category>
 
     <description><![CDATA[
@@ -10,6 +10,8 @@
     ]]></description>
 
     <change-notes><![CDATA[
+        1.0.5.2: catch parse error
+        1.0.5.1: apply emoji only on the message text
         1.0.5.0: separate servicename and host into two fields
         1.0.4.2: make it pinnable and pinned by default
         1.0.4.1: added emoji4j and last 4 history messages in chat window
@@ -30,30 +32,30 @@
     -->
     <application-components>
         <component>
-            <interface-class>com.shark.intellij.plugins.xmpp.XMPPApplicationInterface</interface-class>
-            <implementation-class>com.shark.intellij.plugins.xmpp.XMPPApplicationImpl</implementation-class>
+            <interface-class>at.dotti.intellij.plugins.xmpp.XMPPApplicationInterface</interface-class>
+            <implementation-class>at.dotti.intellij.plugins.xmpp.XMPPApplicationImpl</implementation-class>
         </component>
     </application-components>
 
     <project-components>
         <component>
-            <interface-class>com.shark.intellij.plugins.xmpp.XMPPProjectInterface</interface-class>
-            <implementation-class>com.shark.intellij.plugins.xmpp.XMPPProjectImpl</implementation-class>
+            <interface-class>at.dotti.intellij.plugins.xmpp.XMPPProjectInterface</interface-class>
+            <implementation-class>at.dotti.intellij.plugins.xmpp.XMPPProjectImpl</implementation-class>
         </component>
     </project-components>
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
         <toolWindow icon="/icons/jabber.png" id="XMPP" anchor="right" canCloseContents="true"
-                    factoryClass="com.shark.intellij.plugins.xmpp.XMPPToolWindowFactory"/>
-        <applicationService serviceImplementation="com.shark.intellij.plugins.xmpp.SettingsBean"/>
-        <applicationConfigurable instance="com.shark.intellij.plugins.xmpp.XMPPSettingsForm"/>
+                    factoryClass="at.dotti.intellij.plugins.xmpp.XMPPToolWindowFactory"/>
+        <applicationService serviceImplementation="at.dotti.intellij.plugins.xmpp.SettingsBean"/>
+        <applicationConfigurable instance="at.dotti.intellij.plugins.xmpp.XMPPSettingsForm"/>
     </extensions>
 
     <actions>
         <!-- Add your actions here -->
-        <action id="com.shark.intellij.plugins.xmpp.CopyToXMPPAction"
-                class="com.shark.intellij.plugins.xmpp.CopyToXMPPAction" text="Copy To XMPP Contact"
+        <action id="at.dotti.intellij.plugins.xmpp.CopyToXMPPAction"
+                class="at.dotti.intellij.plugins.xmpp.CopyToXMPPAction" text="Copy To XMPP Contact"
                 description="Copy the selected to a XMPP Contact">
             <add-to-group group-id="EditorPopupMenu" anchor="after" relative-to-action="CopyReference"/>
             <keyboard-shortcut keymap="$default" first-keystroke="shift ctrl C"/>

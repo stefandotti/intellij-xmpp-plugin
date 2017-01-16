@@ -1,7 +1,7 @@
 <idea-plugin version="2">
     <id>at.dotti.intellij.plugins.xmpp</id>
     <name>XMPP</name>
-    <version>1.0.5.4</version>
+    <version>1.0.6.5</version>
     <vendor email="stefan@dotti.at" url="http://www.dotti.at">Stefan Dotti</vendor>
     <category>TEAMWORK</category>
 
@@ -11,6 +11,12 @@
 
     <change-notes><![CDATA[
         <ul>
+        <li>1.0.6.5: made the tool window factory DumbAware to avoid disable at indexing</li>
+        <li>1.0.6.4: fixed latest history item not shown</li>
+        <li>1.0.6.3: sleep if window is not visible</li>
+        <li>1.0.6.2: catch general exception</li>
+        <li>1.0.6.1: update chat reference on new message and use participant string as map key</li>
+        <li>1.0.6.0: search for font that supports emoji utf8 chars</li>
         <li>1.0.5.4: changed description to english and added html markup</li>
         <li>1.0.5.3: fixed an error (npe) with the settings</li>
         <li>1.0.5.2: catch parse error</li>

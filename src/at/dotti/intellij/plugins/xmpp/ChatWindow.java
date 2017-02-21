@@ -1,26 +1,25 @@
 package at.dotti.intellij.plugins.xmpp;
 
 import com.intellij.openapi.components.ServiceManager;
+import com.intellij.ui.JBColor;
 import com.intellij.ui.components.JBScrollPane;
 import emoji4j.EmojiUtils;
-import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.chat.Chat;
 import org.jivesoftware.smack.packet.Message;
 
 import javax.swing.*;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Element;
-import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.StyleConstants;
-import javax.swing.text.html.HTMLDocument;
-import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.Timer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,12 +37,18 @@ public class ChatWindow extends JPanel implements HyperlinkListener {
 
 	private boolean emojiSupported = false;
 
+	public static final Pattern P_HTTP = Pattern.compile("(http:)[^\\s\\t<]+");
+
+	private java.util.Timer timer = new Timer("highlight", true);
+
+	private Color origColor;
+
 	public ChatWindow(String self, Chat chat) {
 
 		String fontFamily = "Courier";
 		Font uiFont = getFont();
 		Font[] fonts = GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts();
-		for (Font font: fonts) {
+		for (Font font : fonts) {
 			// search for a font that can display emoji
 			if (font.canDisplay('\u23F0')) {
 				fontFamily = font.getFontName();
@@ -56,13 +61,58 @@ public class ChatWindow extends JPanel implements HyperlinkListener {
 		this.chat = chat;
 		this.setLayout(new BorderLayout());
 		this.messagePane = new JTextPane();
-		this.messagePane.setContentType("text/html;charset=utf-8");
-		HTMLEditorKit ei;
-		this.messagePane.setEditorKit(ei = new HTMLEditorKit());
+		this.messagePane.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				int idx = messagePane.viewToModel(e.getPoint());
+				if (idx != -1) {
+					Element elem = ((DefaultStyledDocument) messagePane.getDocument()).getParagraphElement(idx);
+					try {
+						String text = elem.getDocument().getText(elem.getStartOffset(), elem.getEndOffset() - elem.getStartOffset());
+						int start = idx;
+						while (start > elem.getStartOffset() && text.charAt(start - elem.getStartOffset()) != ' ') {
+							start--;
+						}
+						Pattern P_HTTP = Pattern.compile("(http|www)[^\\s\\t<]+");
+						Matcher m = P_HTTP.matcher(text.substring(start - elem.getStartOffset()));
+						if (m.find()) {
+							Desktop.getDesktop().browse(new java.net.URI(m.group()));
+						}
+					} catch (Exception e1) {
+						e1.printStackTrace();
+					}
+				}
+			}
+
+			@Override
+			public void mouseMoved(MouseEvent e) {
+				int idx = messagePane.viewToModel(e.getPoint());
+				if (idx != -1) {
+					Element elem = ((DefaultStyledDocument) messagePane.getDocument()).getParagraphElement(idx);
+					try {
+						String text = elem.getDocument().getText(elem.getStartOffset(), elem.getEndOffset() - elem.getStartOffset());
+						System.out.println(text);
+					} catch (BadLocationException e1) {
+					}
+				}
+			}
+		});
+		this.messagePane.setContentType("text/plain;charset=utf-8");
 		this.messagePane.addHyperlinkListener(this);
 		this.messagePane.setEditable(false);
-		this.messagePane.setText("<html><head></head><body id='body'></body></html>");
-		ei.getStyleSheet().addRule("div { font-size: 10px; font-family: '"+fontFamily+"'; margin: 0; padding: 0; }");
+		StyleContext st = new StyleContext();
+		this.messagePane.setDocument(new DefaultStyledDocument(st));
+		Style style = st.addStyle("self", null);
+		style.addAttribute(StyleConstants.Foreground, getForeground().equals(Color.WHITE) ? getForeground().brighter() : getForeground().darker());
+		style.addAttribute(StyleConstants.Underline, false);
+		Style other = st.addStyle("other", null);
+		other.addAttribute(StyleConstants.Foreground, getForeground());
+		other.addAttribute(StyleConstants.Underline, false);
+		Style link = st.addStyle("link", null);
+		link.addAttribute(StyleConstants.Foreground, getForeground().equals(Color.WHITE) ? Color.BLUE : Color.BLUE.darker());
+		link.addAttribute(StyleConstants.Underline, true);
+		//this.messagePane.setText("<html><head></head><body id='body'></body></html>");
+		//ei.getStyleSheet().addRule("div { font-size: 10px; font-family: '"+fontFamily+"'; margin: 0; padding: 0; }");
 		this.messagePane.setFont(uiFont);
 		this.add(new JBScrollPane(this.messagePane), BorderLayout.CENTER);
 		JPanel south = new JPanel();
@@ -79,7 +129,22 @@ public class ChatWindow extends JPanel implements HyperlinkListener {
 	}
 
 	private String emojify(String text) {
-		return this.emojiSupported ? EmojiUtils.emojify(text): text;
+		if (this.emojiSupported) {
+			StringBuilder sb = new StringBuilder();
+			Matcher m = P_HTTP.matcher(text);
+			int last = 0;
+			while (m.find()) {
+				sb.append(EmojiUtils.emojify(text.substring(last, m.start())));
+				sb.append(m.group());
+				last = m.end();
+			}
+			if (last < text.length()) {
+				sb.append(EmojiUtils.emojify(text.substring(last)));
+			}
+			return sb.toString();
+		} else {
+			return text;
+		}
 	}
 
 	private void addMessage(XMPPMessage historyMessage) {
@@ -120,39 +185,50 @@ public class ChatWindow extends JPanel implements HyperlinkListener {
 			}
 			try {
 				String msg = SimpleDateFormat.getTimeInstance().format(System.currentTimeMillis()) + " " + message;
-				SimpleAttributeSet styles = new SimpleAttributeSet();
-				if (self) {
-					StyleConstants.setForeground(styles, getForeground().darker());
-				}
-				msg = msg.replace("<", "&lt;").replace(">", "&gt;");
+
 				StringBuilder sb = new StringBuilder();
-				Pattern P_HTTP = Pattern.compile("http(s)?:[^\\s\\t<]+");
-				Matcher m = P_HTTP.matcher(msg);
-				int last = 0;
-				while (m.find()) {
-					sb.append(msg.substring(last, m.start()));
-					sb.append("<a href='").append(m.group()).append("'>").append(m.group()).append("</a>");
-					last = m.end();
-				}
-				if (last < msg.length()) {
-					sb.append(msg.substring(last));
-				}
-				HTMLDocument doc = (HTMLDocument) this.messagePane.getDocument();
-				Element body = doc.getElement("body");
+				sb.append(msg);
+
+				//msg = msg.replace("<", "&lt;").replace(">", "&gt;");
+				DefaultStyledDocument doc = (DefaultStyledDocument) this.messagePane.getDocument();
+				//				Element body = doc.getElement("body");
 				Color c = self ? getForeground().darker() : getForeground();
 				String color = c.getRed() + "," + c.getGreen() + "," + c.getBlue();
-				doc.insertBeforeEnd(body, "<div style='color: rgb(" + color + ")'>" + sb + "</div>");
+				sb.append("\n");
+				int pos = doc.getLength();
+				int len = sb.toString().length();
+				doc.insertString(pos, sb.toString(), null);
+				doc.setParagraphAttributes(pos, len, doc.getStyle(self ? "self" : "other"), true);
+
+				Matcher m = P_HTTP.matcher(msg);
+				while (m.find()) {
+					doc.setCharacterAttributes(pos + m.start(), m.end() + m.start(), doc.getStyle("link"), true);
+				}
 
 				Rectangle r = this.messagePane.modelToView(doc.getLength());
 				if (r != null) {
 					this.messagePane.scrollRectToVisible(r);
 				}
+
+				highlight();
+
 			} catch (BadLocationException e) {
-				this.messagePane.setText(message);
-			} catch (IOException e) {
 				this.messagePane.setText(message);
 			}
 		});
+	}
+
+	private void highlight() {
+		if (this.origColor == null) {
+			this.origColor = messagePane.getBackground();
+		}
+		this.messagePane.setBackground(JBColor.ORANGE);
+		this.timer.schedule(new TimerTask() {
+			@Override
+			public void run() {
+				messagePane.setBackground(origColor);
+			}
+		}, 3000);
 	}
 
 	public void setChat(Chat chat) {

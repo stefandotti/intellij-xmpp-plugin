@@ -40,9 +40,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.Timer;
 
 public class XMPPToolWindow implements RosterListener, ChatManagerListener, ConnectionListener, ChatMessageListener {
 

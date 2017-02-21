@@ -34,8 +34,7 @@ import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.*;
 import java.util.List;
 
 public class XMPPService implements ChatManagerListener, RosterListener, ConnectionListener, ChatMessageListener, FileTransferListener {
@@ -45,6 +44,8 @@ public class XMPPService implements ChatManagerListener, RosterListener, Connect
 	private AbstractXMPPConnection connection;
 
 	private Project project;
+
+	private java.util.Timer timer;
 
 	public static synchronized void create(Project project) throws IOException, XMPPException, SmackException {
 		if (service == null) {
@@ -271,6 +272,20 @@ public class XMPPService implements ChatManagerListener, RosterListener, Connect
 	@Override
 	public void connectionClosedOnError(Exception e) {
 		activateToolWindow(() -> {
+			if (this.timer == null) {
+				this.timer = new java.util.Timer("xmpp-reconnect", true);
+			}
+			this.timer.schedule(new TimerTask() {
+				@Override
+				public void run() {
+					try {
+						reconnect();
+					} catch (IOException | XMPPException | SmackException e1) {
+						e1.printStackTrace();
+					}
+				}
+			}, 3000);
+
 			XMPPToolWindow tool = XMPPToolWindow.getInstance();
 			tool.connectionClosedOnError(e);
 		});

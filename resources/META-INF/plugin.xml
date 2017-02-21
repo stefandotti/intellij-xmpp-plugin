@@ -1,7 +1,7 @@
 <idea-plugin version="2">
     <id>at.dotti.intellij.plugins.xmpp</id>
     <name>XMPP</name>
-    <version>1.0.6.5</version>
+    <version>1.1.1.0</version>
     <vendor email="stefan@dotti.at" url="http://www.dotti.at">Stefan Dotti</vendor>
     <category>TEAMWORK</category>
 
@@ -11,6 +11,9 @@
 
     <change-notes><![CDATA[
         <ul>
+        <li>1.1.2.0: added: change bg color on chat window on new message and hide after 3s</li>
+        <li>1.1.1.0: added timer for reconnect on connection loss in case of an error</li>
+        <li>1.1.0.0: changed the content type to text/plain to support new line, better emoji support</li>
         <li>1.0.6.5: made the tool window factory DumbAware to avoid disable at indexing</li>
         <li>1.0.6.4: fixed latest history item not shown</li>
         <li>1.0.6.3: sleep if window is not visible</li>

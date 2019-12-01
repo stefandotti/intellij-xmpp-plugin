@@ -95,7 +95,7 @@ public class XMPPSettingsForm implements Configurable {
     }
 
     private JTextField username;
-    private JTextField password;
+    private JPasswordField password;
     private JTextField server;
     private JTextField port;
     private JRadioButton TLSRadioButton;

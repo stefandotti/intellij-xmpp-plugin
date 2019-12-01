@@ -1,5 +1,8 @@
 package at.dotti.intellij.plugins.xmpp;
 
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.MessageType;
@@ -65,6 +68,9 @@ public class XMPPService implements ChatManagerListener, RosterListener, Connect
 	}
 
 	private void startup() throws IOException, XMPPException, SmackException {
+	    if (!settings.isValid()) {
+	        return;
+        }
 		this.connection = startup(settings.getUsername(), settings.getPassword(), settings.getServer(), settings.getPort(), settings.getServiceName(), settings.getEncryption());
 		addConnectionListener(this);
 		getChatManager().addChatListener(this);
@@ -92,13 +98,11 @@ public class XMPPService implements ChatManagerListener, RosterListener, Connect
 				sc = SSLContext.getInstance(encryption);
 				sc.init(null, trustAllCerts, new java.security.SecureRandom());
 			}
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		} catch (KeyManagementException e) {
-			e.printStackTrace();
+		} catch (NoSuchAlgorithmException | KeyManagementException e) {
+            Notifications.Bus.notify(new Notification(XMPP.GROUP_ID, "XMPP Error", e.getMessage(), NotificationType.ERROR));
 		}
 
-		HostnameVerifier allHostsValid = (hostname, session) -> true;
+        HostnameVerifier allHostsValid = (hostname, session) -> true;
 
 		XMPPTCPConnectionConfiguration config = null;
 		if (encryption == null || encryption.equals("NO")) {
@@ -125,30 +129,41 @@ public class XMPPService implements ChatManagerListener, RosterListener, Connect
 	}
 
 	public void addConnectionListener(ConnectionListener c) {
-		this.connection.addConnectionListener(c);
+	    if (this.connection != null) {
+            this.connection.addConnectionListener(c);
+        }
 	}
 
 	public void login() throws IOException, XMPPException, SmackException {
-		this.connection.login();
+	    if (this.connection != null) {
+            this.connection.login();
+        }
 	}
 
 	public Roster getRoster() {
-		return Roster.getInstanceFor(this.connection);
+	    if (this.connection != null) {
+            return Roster.getInstanceFor(this.connection);
+        }
+	    throw new IllegalArgumentException("connection is null");
 	}
 
 	public ChatManager getChatManager() {
-		return ChatManager.getInstanceFor(this.connection);
+        if (this.connection != null) {
+            return ChatManager.getInstanceFor(this.connection);
+        }
+        throw new IllegalArgumentException("connection is null");
 	}
 
 	public String getSelf() {
-		String user = getSelf(getUser());
-		return user;
+        return getSelf(getUser());
 	}
 
 	public String getUser() {
-		Presence p = getRoster().getPresence(this.connection.getUser());
-		String user = p.getFrom();
-		return user;
+        if (this.connection != null) {
+            Presence p = getRoster().getPresence(this.connection.getUser());
+            return p.getFrom();
+        }
+        return "";
 	}
 
 	public String getSelf(String user) {
@@ -162,8 +177,10 @@ public class XMPPService implements ChatManagerListener, RosterListener, Connect
 	public void close() {
 		getChatManager().removeChatListener(this);
 		getRoster().removeRosterListener(this);
-		connection.removeConnectionListener(this);
-		connection.disconnect();
+		if (this.connection != null) {
+            connection.removeConnectionListener(this);
+            connection.disconnect();
+        }
 	}
 
 	public Chat openChat(String user) {
@@ -176,7 +193,9 @@ public class XMPPService implements ChatManagerListener, RosterListener, Connect
 	}
 
 	public void reconnect() throws IOException, XMPPException, SmackException {
-		this.connection.connect();
+	    if (this.connection != null) {
+            this.connection.connect();
+        }
 	}
 
 	public void transfer(String user, File file) throws SmackException {
@@ -456,4 +475,8 @@ public class XMPPService implements ChatManagerListener, RosterListener, Connect
 			}
 		});
 	}
+
+    public boolean isAlive() {
+        return this.connection != null;
+    }
 }

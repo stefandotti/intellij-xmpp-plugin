@@ -1,6 +1,9 @@
 package at.dotti.intellij.plugins.xmpp;
 
 import com.intellij.icons.AllIcons;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.actionSystem.ex.ComboBoxAction;
 import com.intellij.openapi.project.DumbAwareAction;
@@ -273,6 +276,9 @@ public class XMPPToolWindow implements RosterListener, ChatManagerListener, Conn
 	}
 
 	private void reconnect() {
+        if (XMPPService.getService() == null || !XMPPService.getService().isAlive()) {
+            return;
+        }
 		sp.setColumnHeaderView(new JBLabel(XMPPService.getService().getSelf(), JBLabel.RIGHT));
 		Roster roster = XMPPService.getService().getRoster();
 		SwingUtilities.invokeLater(() -> {
@@ -318,7 +324,7 @@ public class XMPPToolWindow implements RosterListener, ChatManagerListener, Conn
 
 	private ActionToolbar createToolbar() {
 		DefaultActionGroup group = new DefaultActionGroup();
-		group.add(new DumbAwareAction("Connect", "Connect", AllIcons.Actions.Redo) {
+		group.add(new DumbAwareAction("Connect", "Connect", AllIcons.Actions.Restart) {
 			@Override
 			public void actionPerformed(AnActionEvent anActionEvent) {
 				try {
@@ -327,14 +333,10 @@ public class XMPPToolWindow implements RosterListener, ChatManagerListener, Conn
 						XMPPService.getService().login();
 					}
 					XMPPService.getService().reconnect();
-				} catch (IOException e) {
-					e.printStackTrace();
-				} catch (XMPPException e) {
-					e.printStackTrace();
-				} catch (SmackException e) {
-					e.printStackTrace();
+				} catch (IOException | XMPPException | SmackException e) {
+                    Notifications.Bus.notify(new Notification(XMPP.GROUP_ID, "XMPP Error", e.getMessage(), NotificationType.ERROR));
 				}
-			}
+            }
 		});
 		ComboBoxAction status = new ComboBoxAction() {
 			@NotNull
@@ -373,14 +375,14 @@ public class XMPPToolWindow implements RosterListener, ChatManagerListener, Conn
 			 * @param presentation the presentaiton to update
 			 */
 			private void updateText(Presentation presentation) {
-				if (XMPPService.getService() != null) {
+				if (XMPPService.getService() != null && XMPPService.getService().isAlive()) {
 					String t = XMPPService.getService().getRoster().getPresence(XMPPService.getService().getUser()).getType().name();
 					presentation.setText(t);
 				}
 			}
 		};
 		group.add(status);
-		group.add(new DumbAwareAction("History", "History", AllIcons.Actions.ShowViewer) {
+		group.add(new DumbAwareAction("History", "History", AllIcons.Actions.ListChanges) {
 			@Override
 			public void actionPerformed(AnActionEvent anActionEvent) {
 				createHistoryWindow();

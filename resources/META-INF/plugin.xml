@@ -1,7 +1,7 @@
-<idea-plugin version="2">
+<idea-plugin>
     <id>at.dotti.intellij.plugins.xmpp</id>
     <name>XMPP</name>
-    <version>1.1.1.0</version>
+    <version>1.2.0.0</version>
     <vendor email="stefan@dotti.at" url="http://www.dotti.at">Stefan Dotti</vendor>
     <category>TEAMWORK</category>
 
@@ -11,7 +11,10 @@
 
     <change-notes><![CDATA[
         <ul>
-        <li>1.1.2.0: added: change bg color on chat window on new message and hide after 3s</li>
+        <li>1.2.0.0: changed api to match idea build 193+</li>
+        <li>1.1.2.0: added: change bg color on chat window on new message and hide after 3s,
+            changed password field to be actually a password field,
+            added end-of-life for build 193</li>
         <li>1.1.1.0: added timer for reconnect on connection loss in case of an error</li>
         <li>1.1.0.0: changed the content type to text/plain to support new line, better emoji support</li>
         <li>1.0.6.5: made the tool window factory DumbAware to avoid disable at indexing</li>
@@ -35,7 +38,7 @@
     </change-notes>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
-    <idea-version since-build="141.0"/>
+    <idea-version since-build="172.1909.2" />
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
          on how to target different products -->

@@ -3,11 +3,11 @@ package at.dotti.intellij.plugins.xmpp;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
-import com.intellij.util.containers.HashMap;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -112,5 +112,9 @@ public class SettingsBean implements PersistentStateComponent<SettingsBean> {
 
     public Map<String, List<XMPPMessage>> getMessageHistory() {
         return messageHistory;
+    }
+
+    public boolean isValid() {
+        return this.server != null && this.serviceName != null;
     }
 }

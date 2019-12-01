@@ -1,5 +1,8 @@
 package at.dotti.intellij.plugins.xmpp;
 
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
@@ -29,7 +32,7 @@ public class XMPPProjectImpl implements XMPPProjectInterface, ProjectComponent {
             XMPPService.create(this.project);
             XMPPService.getService().login();
         } catch (Exception e) {
-            e.printStackTrace();
+            Notifications.Bus.notify(new Notification(XMPP.GROUP_ID, "XMPP Error", e.getMessage(), NotificationType.ERROR));
         }
     }
 

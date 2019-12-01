@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>at.dotti.intellij.plugins.xmpp</id>
     <name>XMPP</name>
-    <version>1.2.1.0</version>
+    <version>1.2.2.0</version>
     <vendor email="stefan@dotti.at" url="http://www.dotti.at">Stefan Dotti</vendor>
     <category>TEAMWORK</category>
 
@@ -11,6 +11,7 @@
 
     <change-notes><![CDATA[
         <ul>
+        <li>1.2.2.0: declared depends section im plugin xml</li>
         <li>1.2.1.0: removed deprecated api</li>
         <li>1.2.0.0: changed api to match idea build 193+</li>
         <li>1.1.2.0: added: change bg color on chat window on new message and hide after 3s,
@@ -37,6 +38,8 @@
         <li>1.0.2.0: Show Balloon when contact changes presence.</li></ul>
     ]]>
     </change-notes>
+
+    <depends>com.intellij.modules.platform</depends>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
     <idea-version since-build="172.1909.2" />

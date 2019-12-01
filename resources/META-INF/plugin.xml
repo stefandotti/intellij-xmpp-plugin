@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>at.dotti.intellij.plugins.xmpp</id>
     <name>XMPP</name>
-    <version>1.2.0.0</version>
+    <version>1.2.1.0</version>
     <vendor email="stefan@dotti.at" url="http://www.dotti.at">Stefan Dotti</vendor>
     <category>TEAMWORK</category>
 
@@ -11,6 +11,7 @@
 
     <change-notes><![CDATA[
         <ul>
+        <li>1.2.1.0: removed deprecated api</li>
         <li>1.2.0.0: changed api to match idea build 193+</li>
         <li>1.1.2.0: added: change bg color on chat window on new message and hide after 3s,
             changed password field to be actually a password field,

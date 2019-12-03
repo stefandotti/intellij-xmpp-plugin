@@ -77,12 +77,14 @@ public class XMPPSettingsForm implements Configurable {
     public void apply() throws ConfigurationException {
         SettingsBean bean = ServiceManager.getService(SettingsBean.class);
         bean.setUsername(username.getText());
-        bean.setPassword(password.getText());
         bean.setServer(server.getText());
         bean.setPort(Short.parseShort(port.getText()));
 		bean.setServiceName(serviceName.getText());
         bean.setEncryption(TLSRadioButton.isSelected()?"TLS":"NO");
+        bean.storePassword(password.getPassword());
     }
+
+
 
     @Override
     public void reset() {

@@ -1,5 +1,9 @@
 package at.dotti.intellij.plugins.xmpp;
 
+import com.intellij.credentialStore.CredentialAttributes;
+import com.intellij.credentialStore.CredentialAttributesKt;
+import com.intellij.credentialStore.Credentials;
+import com.intellij.ide.passwordSafe.PasswordSafe;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
@@ -38,10 +42,6 @@ public class SettingsBean implements PersistentStateComponent<SettingsBean> {
         this.username = username;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     public void setServer(String server) {
         this.server = server;
     }
@@ -56,10 +56,6 @@ public class SettingsBean implements PersistentStateComponent<SettingsBean> {
 
     public String getUsername() {
         return username;
-    }
-
-    public String getPassword() {
-        return password;
     }
 
     public String getServer() {
@@ -116,5 +112,27 @@ public class SettingsBean implements PersistentStateComponent<SettingsBean> {
 
     public boolean isValid() {
         return this.server != null && this.serviceName != null;
+    }
+
+    private CredentialAttributes createCredentialAttributes(String key) {
+        return new CredentialAttributes(CredentialAttributesKt.generateServiceName("XMPP", key));
+    }
+
+    public void storePassword(char[] password) {
+        if (server != null && username != null && password != null) {
+            CredentialAttributes credentialAttributes = createCredentialAttributes(server);
+            Credentials credentials = new Credentials(username, password);
+            PasswordSafe.getInstance().set(credentialAttributes, credentials);
+        }
+    }
+
+    public String getPassword() {
+        if (this.password != null) {
+            // migrate old password into PasswordSafe
+            storePassword(this.password.toCharArray());
+            this.password = null;
+        }
+        CredentialAttributes credentialAttributes = createCredentialAttributes(server);
+        return PasswordSafe.getInstance().getPassword(credentialAttributes);
     }
 }

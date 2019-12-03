@@ -8,6 +8,7 @@ import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -28,7 +29,7 @@ public class SettingsBean implements PersistentStateComponent<SettingsBean> {
     private Map<String, List<XMPPMessage>> messageHistory = new HashMap<>();
 
     @Override
-    public void loadState(SettingsBean settingsBean) {
+    public void loadState(@NotNull SettingsBean settingsBean) {
         XmlSerializerUtil.copyBean(settingsBean, this);
     }
 
@@ -90,11 +91,7 @@ public class SettingsBean implements PersistentStateComponent<SettingsBean> {
         if (from.lastIndexOf("/") != -1) {
             from = from.substring(0, from.lastIndexOf("/"));
         }
-        List<XMPPMessage> userHistory = this.messageHistory.get(from);
-        if (userHistory == null) {
-            userHistory = new ArrayList<>();
-            this.messageHistory.put(from, userHistory);
-        }
+        List<XMPPMessage> userHistory = this.messageHistory.computeIfAbsent(from, k -> new ArrayList<>());
         userHistory.add(new XMPPMessage(timestamp, user, msg));
     }
 
@@ -132,7 +129,10 @@ public class SettingsBean implements PersistentStateComponent<SettingsBean> {
             storePassword(this.password.toCharArray());
             this.password = null;
         }
-        CredentialAttributes credentialAttributes = createCredentialAttributes(server);
-        return PasswordSafe.getInstance().getPassword(credentialAttributes);
+        if (server != null) {
+            CredentialAttributes credentialAttributes = createCredentialAttributes(server);
+            return PasswordSafe.getInstance().getPassword(credentialAttributes);
+        }
+        return null;
     }
 }
